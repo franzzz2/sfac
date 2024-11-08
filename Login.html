@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STRANDED</title>
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <img src="images/schoollogo.png" alt="Saint Francis of Assisi College Logo" class="logo">
+      <h1>WELCOME TO STRANDED!</h1>
+      <p>A comprehensive track path assessment website. Journey on choosing the most suitable track which fits your personal interest.</p>
+      <button onclick="openLoginForm()">LOG IN</button>
+    </div>
+    <div class="image">
+      <img src="#" alt="Student with Laptop">
+    </div>
+  </div>
+
+  <!-- Login Form Popup -->
+  <div class="login-popup" id="loginPopup">
+    <div class="popup-content">
+      <span onclick="closeLoginForm()" class="close">&times;</span>
+      <h2>Log In</h2>
+      <form onsubmit="redirectToHome(event)">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <button type="submit">Log In</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openLoginForm() {
+      document.getElementById("loginPopup").style.display = "flex";
+    }
+
+    function closeLoginForm() {
+      document.getElementById("loginPopup").style.display = "none";
+    }
+
+    function redirectToHome(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Validate email domain
+      const validDomains = ['@stfrancis.ph.education', '@stfrancis.edu.com'];
+      const isValidDomain = validDomains.some(domain => email.endsWith(domain));
+
+      if (!isValidDomain) {
+        alert("Invalid email domain. Please use your @stfrancis.edu.com or @stfrancis.ph.education email.");
+        return;
+      }
+
+      fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('email', email);
+          window.location.href = "index.html";
+        } else if (data.status === 'already_logged_in') {
+          alert('You are already logged in.');
+          window.location.href = "index.html";
+        } else {
+          alert("Error logging in. Please try again.");
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    // Check if user is already logged in on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('isLoggedIn') === 'true') {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
+</html>
